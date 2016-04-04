@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
@@ -39,14 +40,63 @@ public class FileServerImplWS {
 	}
 	
 	@WebMethod
-	public String[] getFileList (String path) throws InfoNotFoundException {
-		File f = new File(basePath, path);
+	public String[] getPictureList (String albumPath) throws InfoNotFoundException {
+		File f = new File(basePath, albumPath);
+		if(f.exists() && f.isFile())
+			return f.list();
+		else
+			throw new InfoNotFoundException("File not found :" + albumPath);		
+	}
+	
+	
+	@WebMethod
+	public void createNewAlbum(String albumName) throws SecurityException {
+		File newAlbum = new File(basePath,albumName);
+		newAlbum.mkdir();
+		
+
+	}
+	
+	@WebMethod
+	public void deleteAlbum(String albumName) throws InfoNotFoundException {
+		File deletedAlbum = new File(basePath,albumName);
+		
+		if(deletedAlbum.exists() && deletedAlbum.isDirectory())
+			deletedAlbum.renameTo(new File(basePath,albumName+".del"));
+		else
+			throw new InfoNotFoundException("Album not found :" );
+	}
+	
+	@WebMethod
+	public void deletePicture(String albumName, String pictureName) throws InfoNotFoundException {
+		File deletedPicture = new File(basePath,albumName+"/" + pictureName);
+		if(deletedPicture.exists() && deletedPicture.isFile())
+			deletedPicture.renameTo(new File(basePath,albumName + "/" + pictureName + "-.del"));
+		else
+			throw new InfoNotFoundException("Picture not found");
+	}
+	
+	@WebMethod
+	public byte[] downloadPicture (String albumName,String pictureName) throws InfoNotFoundException, IOException {
+		File pic = new File(basePath,albumName+"/" + pictureName);
+		if(pic.exists() && pic.isFile())
+			return Files.readAllBytes(pic.toPath()); // TODO: Confirmar se pode ser desta maneira, ou temos que utilizar
+													//        input streams
+		else
+			throw new InfoNotFoundException("Picture not found");
+	}
+	
+	@WebMethod
+	// Possivelmente adicionar um parametro path?
+	public String[] getAlbumList () throws InfoNotFoundException {
+		File f = basePath;
 		if(f.exists() && f.isDirectory())
 			return f.list();
 		else
-			throw new InfoNotFoundException("File not found :" + path);
+			throw new InfoNotFoundException("File not found :" );
 	
 	}
+
 
 	@WebMethod
 	public byte[] getFile (String path) throws InfoNotFoundException, IOException {
