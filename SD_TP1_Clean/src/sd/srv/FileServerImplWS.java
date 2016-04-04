@@ -67,7 +67,7 @@ public class FileServerImplWS {
 		File deletedAlbum = new File(basePath,albumName);
 		
 		if(deletedAlbum.exists() && deletedAlbum.isDirectory())
-			deletedAlbum.renameTo(new File(basePath,albumName+".del"));
+			deletedAlbum.renameTo(new File(deletedAlbum.getAbsolutePath() + ".deleted"));
 		else
 			throw new InfoNotFoundException("Album not found :" );
 	}
@@ -76,7 +76,7 @@ public class FileServerImplWS {
 	public void deletePicture(String albumName, String pictureName) throws InfoNotFoundException {
 		File deletedPicture = new File(basePath,albumName+"/" + pictureName);
 		if(deletedPicture.exists() && deletedPicture.isFile())
-			deletedPicture.renameTo(new File(basePath,albumName + "/" + pictureName + "-.del"));
+			deletedPicture.renameTo(new File(deletedPicture.getAbsolutePath() + ".deleted"));
 		else
 			throw new InfoNotFoundException("Picture not found");
 	}
