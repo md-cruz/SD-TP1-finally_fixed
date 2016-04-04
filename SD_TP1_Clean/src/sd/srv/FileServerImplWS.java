@@ -54,7 +54,7 @@ public class FileServerImplWS {
 	public void createNewAlbum(String albumName) {
 		File newAlbum = new File(basePath,albumName);
 		try{
-		newAlbum.mkdir();
+		newAlbum.mkdirs();
 		} catch (SecurityException e) {
 			// TODO: handle exception
 		}
