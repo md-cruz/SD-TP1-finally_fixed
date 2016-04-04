@@ -10,7 +10,7 @@ import javax.xml.ws.WebFault;
  * Generated source version: 2.2
  * 
  */
-@WebFault(name = "IOException", targetNamespace = "http://srv.tp1.sd/")
+@WebFault(name = "IOException", targetNamespace = "http://srv.sd/")
 public class IOException_Exception
     extends Exception
 {
@@ -45,7 +45,7 @@ public class IOException_Exception
     /**
      * 
      * @return
-     *     returns fault bean: sd.tp1.clt.ws.IOException
+     *     returns fault bean: sd.clt.ws.IOException
      */
     public IOException getFaultInfo() {
         return faultInfo;

@@ -3,6 +3,7 @@ package sd.srv;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -50,9 +51,13 @@ public class FileServerImplWS {
 	
 	
 	@WebMethod
-	public void createNewAlbum(String albumName) throws SecurityException {
+	public void createNewAlbum(String albumName) {
 		File newAlbum = new File(basePath,albumName);
+		try{
 		newAlbum.mkdir();
+		} catch (SecurityException e) {
+			// TODO: handle exception
+		}
 		
 
 	}
@@ -80,7 +85,7 @@ public class FileServerImplWS {
 	public byte[] downloadPicture (String albumName,String pictureName) throws InfoNotFoundException, IOException {
 		File pic = new File(basePath,albumName+"/" + pictureName);
 		if(pic.exists() && pic.isFile())
-			return Files.readAllBytes(pic.toPath()); // TODO: Confirmar se pode ser desta maneira, ou temos que utilizar
+			return Files.readAllBytes(pic.toPath()); //r TODO: Confirmar se pode ser desta maneira, ou temos que utilizar
 													//        input streams
 		else
 			throw new InfoNotFoundException("Picture not found");
@@ -119,8 +124,10 @@ public class FileServerImplWS {
 	}
 	
 	@WebMethod
-	public void uploadFile(String path, byte[] data) throws InfoNotFoundException,IOException {
-		// TODO: implement method
+	public void uploadPicture (String path, byte[] data) throws InfoNotFoundException,IOException {
+		FileOutputStream sOut = new FileOutputStream(new File(basePath,path));
+		sOut.write(data);
+		sOut.close();
 	}
 	
 	public static void main(String args[]) throws Exception {

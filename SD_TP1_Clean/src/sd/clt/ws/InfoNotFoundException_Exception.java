@@ -10,7 +10,7 @@ import javax.xml.ws.WebFault;
  * Generated source version: 2.2
  * 
  */
-@WebFault(name = "InfoNotFoundException", targetNamespace = "http://srv.tp1.sd/")
+@WebFault(name = "InfoNotFoundException", targetNamespace = "http://srv.sd/")
 public class InfoNotFoundException_Exception
     extends Exception
 {
@@ -45,7 +45,7 @@ public class InfoNotFoundException_Exception
     /**
      * 
      * @return
-     *     returns fault bean: sd.tp1.clt.ws.InfoNotFoundException
+     *     returns fault bean: sd.clt.ws.InfoNotFoundException
      */
     public InfoNotFoundException getFaultInfo() {
         return faultInfo;

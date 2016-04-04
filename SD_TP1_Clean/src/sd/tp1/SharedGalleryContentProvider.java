@@ -13,6 +13,7 @@ import sd.clt.ws.FileServerImplWSService;
 import sd.clt.ws.FileServerImplWS;
 import sd.tp1.gui.GalleryContentProvider;
 import sd.tp1.gui.Gui;
+import sd.tp1.gui.impl.GalleryWindow;
 
 /*
  * This class provides the album/picture content to the gui/main application.
@@ -27,6 +28,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	SharedGalleryContentProvider() {
 		servers = new ArrayList<String>();
 		getServers(servers);
+		gui = new GalleryWindow(this);
 	}
 
 	// to finish - catch interrupted exception
@@ -88,7 +90,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 					}
 
 					Thread.sleep(60000); // esperar um minuto e executar novo
-											// multicast
+					socket.close();						// multicast
 				}
 
 			} catch (Exception e) {
@@ -116,21 +118,50 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	@Override
 	public List<Album> getListOfAlbums() {
 		List<Album> lst = new ArrayList<Album>();
-		try{
-		 		for (String serverUrl : servers) {
-		 			URL wsURL = new URL(String.format("%s", serverUrl));
-		 			FileServerImplWSService service = new FileServerImplWSService(wsURL); // wsimport
-		 			FileServerImplWS server = service.getFileServerImplWSPort();
-		 			List<String> aList = server.getAlbumList(); 
-		 			for(String album : aList)
-		 				lst.add(new SharedAlbum(album));
-		 			}
-		}catch (Exception e) {
-			// TODO: Handle exception
-			return null;
+		
+		for (String serverUrl : servers) {
+			try {
+				URL wsURL = new URL(String.format("%s", serverUrl));
+				FileServerImplWSService service = new FileServerImplWSService(wsURL); // wsimport
+				FileServerImplWS server = service.getFileServerImplWSPort();
+				try {
+					List<String> aList = server.getAlbumList();
+					for (String album : aList) {
+						SharedAlbum alb = new SharedAlbum(album);
+						if (!lst.contains(alb))
+							lst.add(alb);
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+					// call method again, max 3 times
+					boolean executed = false;
+					for (int i = 0; !executed && i < 3; i++) { // number of
+																// tries
+						try {
+							List<String> aList = server.getAlbumList();
+							for (String album : aList) {
+								SharedAlbum alb = new SharedAlbum(album);
+								if (!lst.contains(alb))
+									lst.add(alb);
+							}
+							executed = true;
+						} catch (RuntimeException e1) {
+							if (i < 2) {
+								try { // wait some time
+									Thread.sleep(5000);
+								} catch (InterruptedException e2) {
+									// do nothing
+								}
+							}
+						}
+					}
+				}
+
+			} catch (Exception e) {
+				// TODO: Handle exception
+				return null;
+			}
 		}
-		 		
-		 		
 		return lst;
 	}
 
@@ -140,7 +171,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	 */
 	@Override
 	public List<Picture> getListOfPictures(Album album) {
-		// TODO: obtain remote information 
+		
 		List<Picture> lst = new ArrayList<Picture>();
 		try{
 	 		for (String serverUrl : servers) {
@@ -148,9 +179,12 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	 			FileServerImplWSService service = new FileServerImplWSService(wsURL); 
 	 			FileServerImplWS server = service.getFileServerImplWSPort();
 	 			List<String> picList = server.getPictureList(album.getName()); 
-	 			// TODO: WSimport 
-	 			for(String pic : picList)
-	 				lst.add(new SharedPicture(pic));
+	 			
+	 			for(String pic : picList){
+	 				SharedPicture picture = new SharedPicture(pic);
+	 				if(!lst.contains(picture))
+	 					lst.add(picture);
+	 			}
 	 			}
 	}catch (Exception e) {
 		// TODO: Handle exception
@@ -166,8 +200,21 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	 */
 	@Override
 	public byte[] getPictureData(Album album, Picture picture) {
-		// TODO: obtain remote information 
-		return null;
+		byte[] pictureData = null;
+		try {
+			
+			for (String serverUrl : servers) {
+				URL wsURL = new URL(String.format("%s", serverUrl));
+				FileServerImplWSService service = new FileServerImplWSService(wsURL);
+				FileServerImplWS server = service.getFileServerImplWSPort();
+				pictureData = server.downloadPicture(album.getName(), picture.getName());
+				
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			return null;
+		} 
+		return pictureData;
 	}
 
 	/**
@@ -183,7 +230,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	 			FileServerImplWSService service = new FileServerImplWSService(wsURL); 
 	 			FileServerImplWS server = service.getFileServerImplWSPort();
 	 			server.createNewAlbum(name);
-	 			// TODO: WSimport 
+	 			
 	 		
 	}catch (Exception e) {
 		// TODO: Handle exception
@@ -203,7 +250,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 				FileServerImplWSService service = new FileServerImplWSService(wsURL);
 				FileServerImplWS server = service.getFileServerImplWSPort();
 				server.deleteAlbum(album.getName());
-				// TODO: WSimport
+				
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -216,7 +263,21 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	 */
 	@Override
 	public Picture uploadPicture(Album album, String name, byte[] data) {
-		// TODO: contact servers to add picture name with contents data 
+		
+		Random r = new Random();
+		try{
+				
+	 			URL wsURL = new URL(String.format("%s", servers.get(r.nextInt(servers.size()))));
+	 			FileServerImplWSService service = new FileServerImplWSService(wsURL); 
+	 			FileServerImplWS server = service.getFileServerImplWSPort();
+	 			server.uploadPicture(album.getName() + "/" + name, data);
+	 			
+	 		
+	}catch (Exception e) {
+		// TODO: Handle exception
+		return null;
+	}
+	
 		return new SharedPicture(name);
 	}
 
@@ -232,10 +293,10 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 				FileServerImplWSService service = new FileServerImplWSService(wsURL);
 				FileServerImplWS server = service.getFileServerImplWSPort();
 				server.deletePicture(album.getName(), picture.getName());
-				// TODO: WSimport w
+				
 			}
 		} catch (Exception e) {
-
+			// TODO: handle exception
 			return false;
 		}
 		return true;

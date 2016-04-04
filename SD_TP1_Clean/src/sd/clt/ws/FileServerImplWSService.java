@@ -17,14 +17,14 @@ import javax.xml.ws.WebServiceFeature;
  * Generated source version: 2.2
  * 
  */
-@WebServiceClient(name = "FileServerImplWSService", targetNamespace = "http://srv.tp1.sd/", wsdlLocation = "http://localhost:8080/FileServer?wsdl")
+@WebServiceClient(name = "FileServerImplWSService", targetNamespace = "http://srv.sd/", wsdlLocation = "http://localhost:8080/FileServer?wsdl")
 public class FileServerImplWSService
     extends Service
 {
 
     private final static URL FILESERVERIMPLWSSERVICE_WSDL_LOCATION;
     private final static WebServiceException FILESERVERIMPLWSSERVICE_EXCEPTION;
-    private final static QName FILESERVERIMPLWSSERVICE_QNAME = new QName("http://srv.tp1.sd/", "FileServerImplWSService");
+    private final static QName FILESERVERIMPLWSSERVICE_QNAME = new QName("http://srv.sd/", "FileServerImplWSService");
 
     static {
         URL url = null;
@@ -69,7 +69,7 @@ public class FileServerImplWSService
      */
     @WebEndpoint(name = "FileServerImplWSPort")
     public FileServerImplWS getFileServerImplWSPort() {
-        return super.getPort(new QName("http://srv.tp1.sd/", "FileServerImplWSPort"), FileServerImplWS.class);
+        return super.getPort(new QName("http://srv.sd/", "FileServerImplWSPort"), FileServerImplWS.class);
     }
 
     /**
@@ -81,7 +81,7 @@ public class FileServerImplWSService
      */
     @WebEndpoint(name = "FileServerImplWSPort")
     public FileServerImplWS getFileServerImplWSPort(WebServiceFeature... features) {
-        return super.getPort(new QName("http://srv.tp1.sd/", "FileServerImplWSPort"), FileServerImplWS.class, features);
+        return super.getPort(new QName("http://srv.sd/", "FileServerImplWSPort"), FileServerImplWS.class, features);
     }
 
     private static URL __getWsdlLocation() {
