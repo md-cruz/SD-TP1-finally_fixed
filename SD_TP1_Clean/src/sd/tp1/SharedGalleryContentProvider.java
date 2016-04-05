@@ -131,7 +131,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 					List<String> aList = server.getAlbumList();
 					for (String album : aList) {
 						SharedAlbum alb = new SharedAlbum(album);
-						if (!lst.contains(alb))
+						if (!lst.contains(alb)&& !album.endsWith(".deleted"))
 							lst.add(alb);
 					}
 					System.out.println("fez fixe");
@@ -189,7 +189,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 					List<String> picList = server.getPictureList(album.getName());
 					for (String pic : picList) {
 						SharedPicture picture = new SharedPicture(pic);
-						if (!lst.contains(picture))
+						if (!lst.contains(picture)&& !pic.endsWith(".deleted"))
 							lst.add(picture);
 					}
 				} catch (Exception e) {
@@ -281,6 +281,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 		int times = 0;
 		final int[] serverIndexes = new Random().ints(0, servers.size()).distinct().limit(servers.size()).toArray();
 		boolean finished = false;
+		
 		while (!finished && i < servers.size()) {
 			try {
 
