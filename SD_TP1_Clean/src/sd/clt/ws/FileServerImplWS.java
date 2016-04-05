@@ -90,6 +90,35 @@ public interface FileServerImplWS {
 
     /**
      * 
+     * @return
+     *     returns java.util.List<java.lang.String>
+     * @throws InfoNotFoundException_Exception
+     */
+    @WebMethod
+    @WebResult(targetNamespace = "")
+    @RequestWrapper(localName = "getAlbumList", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.GetAlbumList")
+    @ResponseWrapper(localName = "getAlbumListResponse", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.GetAlbumListResponse")
+    @Action(input = "http://srv.sd/FileServerImplWS/getAlbumListRequest", output = "http://srv.sd/FileServerImplWS/getAlbumListResponse", fault = {
+        @FaultAction(className = InfoNotFoundException_Exception.class, value = "http://srv.sd/FileServerImplWS/getAlbumList/Fault/InfoNotFoundException")
+    })
+    public List<String> getAlbumList()
+        throws InfoNotFoundException_Exception
+    ;
+
+    /**
+     * 
+     * @param arg0
+     */
+    @WebMethod
+    @RequestWrapper(localName = "alive", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.Alive")
+    @ResponseWrapper(localName = "aliveResponse", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.AliveResponse")
+    @Action(input = "http://srv.sd/FileServerImplWS/aliveRequest", output = "http://srv.sd/FileServerImplWS/aliveResponse")
+    public void alive(
+        @WebParam(name = "arg0", targetNamespace = "")
+        boolean arg0);
+
+    /**
+     * 
      * @param arg1
      * @param arg0
      * @return
@@ -117,26 +146,6 @@ public interface FileServerImplWS {
      * 
      * @param arg1
      * @param arg0
-     * @throws InfoNotFoundException_Exception
-     */
-    @WebMethod
-    @RequestWrapper(localName = "deletePicture", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.DeletePicture")
-    @ResponseWrapper(localName = "deletePictureResponse", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.DeletePictureResponse")
-    @Action(input = "http://srv.sd/FileServerImplWS/deletePictureRequest", output = "http://srv.sd/FileServerImplWS/deletePictureResponse", fault = {
-        @FaultAction(className = InfoNotFoundException_Exception.class, value = "http://srv.sd/FileServerImplWS/deletePicture/Fault/InfoNotFoundException")
-    })
-    public void deletePicture(
-        @WebParam(name = "arg0", targetNamespace = "")
-        String arg0,
-        @WebParam(name = "arg1", targetNamespace = "")
-        String arg1)
-        throws InfoNotFoundException_Exception
-    ;
-
-    /**
-     * 
-     * @param arg1
-     * @param arg0
      * @throws IOException_Exception
      * @throws InfoNotFoundException_Exception
      */
@@ -157,23 +166,6 @@ public interface FileServerImplWS {
 
     /**
      * 
-     * @return
-     *     returns java.util.List<java.lang.String>
-     * @throws InfoNotFoundException_Exception
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "getAlbumList", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.GetAlbumList")
-    @ResponseWrapper(localName = "getAlbumListResponse", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.GetAlbumListResponse")
-    @Action(input = "http://srv.sd/FileServerImplWS/getAlbumListRequest", output = "http://srv.sd/FileServerImplWS/getAlbumListResponse", fault = {
-        @FaultAction(className = InfoNotFoundException_Exception.class, value = "http://srv.sd/FileServerImplWS/getAlbumList/Fault/InfoNotFoundException")
-    })
-    public List<String> getAlbumList()
-        throws InfoNotFoundException_Exception
-    ;
-
-    /**
-     * 
      * @param arg0
      * @return
      *     returns boolean
@@ -189,15 +181,23 @@ public interface FileServerImplWS {
 
     /**
      * 
+     * @param arg1
      * @param arg0
+     * @throws InfoNotFoundException_Exception
      */
     @WebMethod
-    @RequestWrapper(localName = "alive", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.Alive")
-    @ResponseWrapper(localName = "aliveResponse", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.AliveResponse")
-    @Action(input = "http://srv.sd/FileServerImplWS/aliveRequest", output = "http://srv.sd/FileServerImplWS/aliveResponse")
-    public void alive(
+    @RequestWrapper(localName = "deletePicture", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.DeletePicture")
+    @ResponseWrapper(localName = "deletePictureResponse", targetNamespace = "http://srv.sd/", className = "sd.clt.ws.DeletePictureResponse")
+    @Action(input = "http://srv.sd/FileServerImplWS/deletePictureRequest", output = "http://srv.sd/FileServerImplWS/deletePictureResponse", fault = {
+        @FaultAction(className = InfoNotFoundException_Exception.class, value = "http://srv.sd/FileServerImplWS/deletePicture/Fault/InfoNotFoundException")
+    })
+    public void deletePicture(
         @WebParam(name = "arg0", targetNamespace = "")
-        boolean arg0);
+        String arg0,
+        @WebParam(name = "arg1", targetNamespace = "")
+        String arg1)
+        throws InfoNotFoundException_Exception
+    ;
 
     /**
      * 
