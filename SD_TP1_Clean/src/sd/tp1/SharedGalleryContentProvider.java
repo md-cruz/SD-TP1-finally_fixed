@@ -28,7 +28,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	SharedGalleryContentProvider() {
 		servers = new ArrayList<String>();
 		getServers(servers);
-		gui = new GalleryWindow(this);
+		//gui = new GalleryWindow(this);
 	}
 
 	// to finish - catch interrupted exception
@@ -63,7 +63,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 
 				MulticastSocket socket = new MulticastSocket();
 
-				byte[] input = ("GiveMeYourIps\n").getBytes();
+				byte[] input = ("GiveMeYourIps").getBytes();
 				DatagramPacket packet = new DatagramPacket(input, input.length);
 				packet.setAddress(address);
 				packet.setPort(port);
@@ -71,7 +71,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 				while (true) {
 					System.out.println("Sent packet");
 					socket.send(packet);
-					System.out.println(new String(packet.getData()));
+					//System.out.println(new String(packet.getData()));
 
 					byte[] received = new byte[65536];
 					DatagramPacket receivedPacket = new DatagramPacket(received, received.length);
@@ -79,9 +79,11 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 					try {
 						while (!foundAllServers) {
 							socket.setSoTimeout(60000);
+							
 							socket.receive(receivedPacket);
-							String serverHost = "http://" + receivedPacket.getAddress()
-									+ new String(receivedPacket.getData(), 0, receivedPacket.getLength());
+							
+							String serverHost = new String(receivedPacket.getData()).trim();
+							System.out.println(serverHost);
 							if (!servers.contains(serverHost))
 								servers.add(serverHost);
 						}
@@ -90,11 +92,12 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 					}
 
 					Thread.sleep(60000); // esperar um minuto e executar novo
-					socket.close();						// multicast
+										// multicast
 				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
+				
 			}
 		}).start();
 	}
@@ -121,6 +124,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 		
 		for (String serverUrl : servers) {
 			try {
+				System.out.println(serverUrl + " listAlbum\n");
 				URL wsURL = new URL(String.format("%s", serverUrl));
 				FileServerImplWSService service = new FileServerImplWSService(wsURL); // wsimport
 				FileServerImplWS server = service.getFileServerImplWSPort();
@@ -132,7 +136,6 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 							lst.add(alb);
 					}
 				} catch (Exception e) {
-					// TODO: handle exception
 					// call method again, max 3 times
 					boolean executed = false;
 					for (int i = 0; !executed && i < 3; i++) { // number of
@@ -158,7 +161,8 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 				}
 
 			} catch (Exception e) {
-				// TODO: Handle exception
+				// TODO: Handle exception when url is malformed
+				
 				return null;
 			}
 		}
@@ -175,6 +179,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 		List<Picture> lst = new ArrayList<Picture>();
 		try{
 	 		for (String serverUrl : servers) {
+	 			System.out.println(serverUrl + " listPicture\n");
 	 			URL wsURL = new URL(String.format("%s", serverUrl));
 	 			FileServerImplWSService service = new FileServerImplWSService(wsURL); 
 	 			FileServerImplWS server = service.getFileServerImplWSPort();
@@ -204,10 +209,12 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 		try {
 			
 			for (String serverUrl : servers) {
+				System.out.println(serverUrl + " downloadPicture\n");
 				URL wsURL = new URL(String.format("%s", serverUrl));
 				FileServerImplWSService service = new FileServerImplWSService(wsURL);
 				FileServerImplWS server = service.getFileServerImplWSPort();
 				pictureData = server.downloadPicture(album.getName(), picture.getName());
+				return pictureData;
 				
 			}
 		} catch (Exception e) {
@@ -225,15 +232,18 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	public Album createAlbum(String name) {
 		Random r = new Random();
 		try{
-				
-	 			URL wsURL = new URL(String.format("%s", servers.get(r.nextInt(servers.size()))));
-	 			FileServerImplWSService service = new FileServerImplWSService(wsURL); 
-	 			FileServerImplWS server = service.getFileServerImplWSPort();
-	 			server.createNewAlbum(name);
+			int i = r.nextInt(servers.size());
+			System.out.println(servers.get(i) + " createAlbum\n");
+			URL wsURL = new URL(String.format("%s", servers.get(i)));
+			FileServerImplWSService service = new FileServerImplWSService(wsURL);
+			FileServerImplWS server = service.getFileServerImplWSPort();
+			boolean ret = server.createNewAlbum(name);
+			if(!ret)
+				return null;
 	 			
 	 		
 	}catch (Exception e) {
-		// TODO: Handle exception
+		e.printStackTrace();
 		return null;
 	}
 		return new SharedAlbum(name);
@@ -246,6 +256,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	public void deleteAlbum(Album album) {
 		try {
 			for (String serverUrl : servers) {
+				System.out.println(serverUrl + " deleteAlbum\n");
 				URL wsURL = new URL(String.format("%s", serverUrl));
 				FileServerImplWSService service = new FileServerImplWSService(wsURL);
 				FileServerImplWS server = service.getFileServerImplWSPort();
@@ -253,7 +264,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 				
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
+			System.out.println("exceptiones");
 		}
 	}
 	
@@ -266,8 +277,9 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 		
 		Random r = new Random();
 		try{
-				
-	 			URL wsURL = new URL(String.format("%s", servers.get(r.nextInt(servers.size()))));
+				int i = r.nextInt(servers.size());
+				System.out.println(servers.get(i) + " uploadPicture\n");
+	 			URL wsURL = new URL(String.format("%s", servers.get(i)));
 	 			FileServerImplWSService service = new FileServerImplWSService(wsURL); 
 	 			FileServerImplWS server = service.getFileServerImplWSPort();
 	 			server.uploadPicture(album.getName() + "/" + name, data);
@@ -289,6 +301,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider{
 	public boolean deletePicture(Album album, Picture picture) {
 		try {
 			for (String serverUrl : servers) {
+				System.out.println(serverUrl + " deletePicture\n");
 				URL wsURL = new URL(String.format("%s", serverUrl));
 				FileServerImplWSService service = new FileServerImplWSService(wsURL);
 				FileServerImplWS server = service.getFileServerImplWSPort();

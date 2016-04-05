@@ -18,7 +18,7 @@ import javax.xml.ws.Endpoint;
 
 @WebService
 public class FileServerImplWS {
-	private static final String WSERVICE = "FileServerWebService";
+	private static final String WSERVICE = "GiveMeYourIps";
 	private static final String LOCALHOST = "http://localhost:8080/FileServer";
 	private File basePath;
 
@@ -51,12 +51,13 @@ public class FileServerImplWS {
 	
 	
 	@WebMethod
-	public void createNewAlbum(String albumName) {
+	public boolean createNewAlbum(String albumName) {
 		File newAlbum = new File(basePath,albumName);
 		try{
-		newAlbum.mkdirs();
+		return newAlbum.mkdirs();
+		
 		} catch (SecurityException e) {
-			// TODO: handle exception
+			return false;
 		}
 		
 
@@ -85,8 +86,7 @@ public class FileServerImplWS {
 	public byte[] downloadPicture (String albumName,String pictureName) throws InfoNotFoundException, IOException {
 		File pic = new File(basePath,albumName+"/" + pictureName);
 		if(pic.exists() && pic.isFile())
-			return Files.readAllBytes(pic.toPath()); //r TODO: Confirmar se pode ser desta maneira, ou temos que utilizar
-													//        input streams
+			return Files.readAllBytes(pic.toPath()); 
 		else
 			throw new InfoNotFoundException("Picture not found");
 	}
@@ -146,7 +146,7 @@ public class FileServerImplWS {
 			DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
 			socket.receive(packet);
 			String s = new String(packet.getData()).trim();
-			System.out.println(s);
+			
 			if (s.equalsIgnoreCase(WSERVICE)){
 				
 				byte[] data = LOCALHOST.getBytes();

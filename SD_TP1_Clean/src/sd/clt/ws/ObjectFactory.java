@@ -46,7 +46,7 @@ public class ObjectFactory {
     private final static QName _CreateNewAlbumResponse_QNAME = new QName("http://srv.sd/", "createNewAlbumResponse");
     private final static QName _DeleteAlbum_QNAME = new QName("http://srv.sd/", "deleteAlbum");
     private final static QName _UploadPictureResponse_QNAME = new QName("http://srv.sd/", "uploadPictureResponse");
-    private final static QName _GetFileResponseReturn_QNAME = new QName("", "return");
+    private final static QName _DownloadPictureResponseReturn_QNAME = new QName("", "return");
     private final static QName _UploadPictureArg1_QNAME = new QName("", "arg1");
 
     /**
@@ -442,18 +442,18 @@ public class ObjectFactory {
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "return", scope = GetFileResponse.class)
-    public JAXBElement<byte[]> createGetFileResponseReturn(byte[] value) {
-        return new JAXBElement<byte[]>(_GetFileResponseReturn_QNAME, byte[].class, GetFileResponse.class, ((byte[]) value));
+    @XmlElementDecl(namespace = "", name = "return", scope = DownloadPictureResponse.class)
+    public JAXBElement<byte[]> createDownloadPictureResponseReturn(byte[] value) {
+        return new JAXBElement<byte[]>(_DownloadPictureResponseReturn_QNAME, byte[].class, DownloadPictureResponse.class, ((byte[]) value));
     }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "return", scope = DownloadPictureResponse.class)
-    public JAXBElement<byte[]> createDownloadPictureResponseReturn(byte[] value) {
-        return new JAXBElement<byte[]>(_GetFileResponseReturn_QNAME, byte[].class, DownloadPictureResponse.class, ((byte[]) value));
+    @XmlElementDecl(namespace = "", name = "return", scope = GetFileResponse.class)
+    public JAXBElement<byte[]> createGetFileResponseReturn(byte[] value) {
+        return new JAXBElement<byte[]>(_DownloadPictureResponseReturn_QNAME, byte[].class, GetFileResponse.class, ((byte[]) value));
     }
 
     /**
