@@ -43,10 +43,10 @@ public class FileServerImplWS {
 	@WebMethod
 	public String[] getPictureList (String albumPath) throws InfoNotFoundException {
 		File f = new File(basePath, albumPath);
-		if(f.exists() && f.isFile())
+		if(f.exists() && f.isDirectory())
 			return f.list();
 		else
-			throw new InfoNotFoundException("File not found :" + albumPath);		
+			throw new InfoNotFoundException("File not found :" + f.getAbsolutePath() + "\n basepath " + basePath.getAbsolutePath());		
 	}
 	
 	
@@ -134,6 +134,7 @@ public class FileServerImplWS {
 		String path = args.length > 0 ? args[0] : ".";
 		Endpoint.publish("http://0.0.0.0:8080/FileServer", new FileServerImplWS(path));
 		System.err.println("FileServer started");
+		
 
 		final String addr = "228.0.0.1";
 

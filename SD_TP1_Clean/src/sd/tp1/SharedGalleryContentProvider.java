@@ -218,6 +218,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 				}
 			}
 		 catch (Exception e) {
+			 e.printStackTrace();
 			System.out.println("Failed to connect to server " + serverUrl);
 			return null;
 		}
