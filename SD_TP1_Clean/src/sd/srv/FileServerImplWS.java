@@ -2,13 +2,13 @@ package sd.srv;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -67,8 +67,16 @@ public class FileServerImplWS {
 	public void deleteAlbum(String albumName) throws InfoNotFoundException {
 		File deletedAlbum = new File(basePath,albumName);
 		
-		if(deletedAlbum.exists() && deletedAlbum.isDirectory())
-			deletedAlbum.renameTo(new File(deletedAlbum.getAbsolutePath() + ".deleted"));
+		if(deletedAlbum.exists() && deletedAlbum.isDirectory()){
+			File del = new File(deletedAlbum.getAbsolutePath() + ".deleted");
+			if(del.exists() && del.isDirectory()){
+				copyData(deletedAlbum,del);
+				deletedAlbum.delete();
+				
+			}else
+				deletedAlbum.renameTo(del);
+		
+		}
 		else
 			throw new InfoNotFoundException("Album not found :" );
 	}
@@ -76,12 +84,31 @@ public class FileServerImplWS {
 	@WebMethod
 	public void deletePicture(String albumName, String pictureName) throws InfoNotFoundException {
 		File deletedPicture = new File(basePath,albumName+"/" + pictureName);
-		if(deletedPicture.exists() && deletedPicture.isFile())
-			deletedPicture.renameTo(new File(deletedPicture.getAbsolutePath() + ".deleted"));
+		if(deletedPicture.exists() && deletedPicture.isFile()){
+			File del = new File(deletedPicture.getAbsolutePath() + ".deleted");
+			if(del.exists() && del.isFile())
+				deletedPicture.delete();
+			deletedPicture.renameTo(del);}
 		else
 			throw new InfoNotFoundException("Picture not found");
 	}
 	
+	private void copyData(File deletedPicture, File del) {
+		try {
+		for(String fileName : deletedPicture.list()){
+			File f = new File(deletedPicture.getAbsolutePath(),fileName);
+			byte[] contents = Files.readAllBytes(f.toPath());
+			
+			FileOutputStream fis = new FileOutputStream(new File(del.getAbsolutePath(),fileName));
+			fis.write(contents);
+			f.delete();
+			fis.close();
+		}
+		}catch (Exception e){
+			System.out.println("Error copying contents");
+		}
+	}
+
 	@WebMethod
 	public byte[] downloadPicture (String albumName,String pictureName) throws InfoNotFoundException, IOException {
 		File pic = new File(basePath,albumName+"/" + pictureName);
@@ -119,8 +146,8 @@ public class FileServerImplWS {
 	
 	
 	@WebMethod
-	public void alive (boolean status){
-		status = true;
+	public boolean alive (){
+		return true;
 	}
 	
 	@WebMethod
@@ -130,11 +157,14 @@ public class FileServerImplWS {
 		sOut.close();
 	}
 	
+	private List<String> generateMulticastAddresses(){
+		List<String> addresses = new ArrayList<String>();
+		return addresses;
+	}
 	public static void main(String args[]) throws Exception {
 		String path = args.length > 0 ? args[0] : ".";
 		Endpoint.publish("http://0.0.0.0:8080/FileServer", new FileServerImplWS(path));
 		System.err.println("FileServer started");
-		
 
 		final String addr = "228.0.0.1";
 

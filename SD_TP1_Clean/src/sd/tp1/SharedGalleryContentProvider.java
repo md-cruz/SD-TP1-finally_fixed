@@ -6,8 +6,11 @@ import java.net.MulticastSocket;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import sd.clt.ws.FileServerImplWSService;
 import sd.clt.ws.FileServerImplWS;
@@ -20,44 +23,32 @@ import sd.tp1.gui.impl.GalleryWindow;
  * 
  * Project 1 implementation should complete this class. 
  */
+
+
+
+
 public class SharedGalleryContentProvider implements GalleryContentProvider {
 
 	Gui gui;
 	List<String> servers;
+	private static final String MULTICASTIP = "";
+	private static final int PORT = 9000;
+	
 
 	SharedGalleryContentProvider() {
-		servers = new ArrayList<String>();
-		getServers(servers);
+		servers = new CopyOnWriteArrayList<String>();
+		getServers();
 		// gui = new GalleryWindow(this);
 	}
 
-	// to finish - catch interrupted exception
-	private boolean youAlive(FileServerImplWS server) {
-		boolean executed = false;
-		boolean result = false;
-		for (int i = 0; !executed && i < 3; i++) { // number of tries
-			try {
-				server.alive(result);
-				executed = true;
-			} catch (RuntimeException e) {
-				if (i < 2) {
-					try { // wait some time
-						Thread.sleep(5000);
-					} catch (InterruptedException e1) {
-						// TODO: catch exception
-					}
-				}
-			}
-		}
-		return result;
-	}
-
-	private void getServers(List<String> servers) {
+	
+	// also checks if the servers are alive
+	private void getServers() {
 		new Thread(() -> {
 			try {
 
-				final int port = 9000;
-				final String addr = "228.0.0.1";
+				final int port = PORT;
+				final String addr = MULTICASTIP;
 				final InetAddress address = InetAddress.getByName(addr);
 
 				MulticastSocket socket = new MulticastSocket();
@@ -66,22 +57,29 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 				DatagramPacket packet = new DatagramPacket(input, input.length);
 				packet.setAddress(address);
 				packet.setPort(port);
+				Map<String,Integer> consecutiveReplies = new HashMap<String,Integer>();
+				int numberOfQueries = 0;
 
 				while (true) {
 					System.out.println("Sent packet");
 					socket.send(packet);
 					// System.out.println(new String(packet.getData()));
-
+					numberOfQueries++;
 					byte[] received = new byte[65536];
 					DatagramPacket receivedPacket = new DatagramPacket(received, received.length);
 					boolean foundAllServers = false;
 					try {
 						while (!foundAllServers) {
+							
 							socket.setSoTimeout(60000);
 
 							socket.receive(receivedPacket);
 
 							String serverHost = new String(receivedPacket.getData()).trim();
+							consecutiveReplies.put(serverHost,
+									consecutiveReplies.getOrDefault(serverHost, 1)+1); 
+									//getOrDefault returns the current value for the key
+									// or 1 if the key has no value yet
 							System.out.println(serverHost);
 							if (!servers.contains(serverHost))
 								servers.add(serverHost);
@@ -89,7 +87,15 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 					} catch (SocketTimeoutException e) {
 						foundAllServers = true;
 					}
-
+					
+					// delete servers if they havent replied in the last 3 times
+					for(String server : consecutiveReplies.keySet()){
+						if (consecutiveReplies.get(server) +3 < numberOfQueries){
+							// remove server
+							servers.remove(server);
+						}
+					}
+					
 					Thread.sleep(60000); // esperar um minuto e executar novo
 											// multicast
 				}
@@ -126,15 +132,15 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 				URL wsURL = new URL(String.format("%s", serverUrl));
 				FileServerImplWSService service = new FileServerImplWSService(wsURL); // wsimport
 				FileServerImplWS server = service.getFileServerImplWSPort();
-				System.out.println("Encontrou server");
 				try {
 					List<String> aList = server.getAlbumList();
 					for (String album : aList) {
 						SharedAlbum alb = new SharedAlbum(album);
+						System.out.println(alb.getName() + " nome");
 						if (!lst.contains(alb)&& !album.endsWith(".deleted"))
 							lst.add(alb);
 					}
-					System.out.println("fez fixe");
+				
 					
 				} catch (Exception e) {
 					// call method again, max 3 times
@@ -163,8 +169,9 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 				}
 
 			} catch (Exception e) {
-				System.out.println("Failed to connect to server " + serverUrl);
-				return null;
+				e.printStackTrace();
+				//System.out.println("Server " + serverUrl + " may be down, client will remove"
+					//	+ "it withing 6 minutes if it does not show signs of life");				
 			}
 		}
 		return lst;
@@ -219,8 +226,9 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 			}
 		 catch (Exception e) {
 			 e.printStackTrace();
-			System.out.println("Failed to connect to server " + serverUrl);
-			return null;
+			// System.out.println("Server " + serverUrl + " may be down, client will remove"
+				//		+ "it withing 6 minutes if it does not show signs of life");
+
 		}
 			}
 		return lst;
@@ -265,8 +273,10 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 			}
 
 		 catch (Exception e) {
-			System.out.println("Failed to connect to server " + serverUrl);
-			return null;
+			 e.printStackTrace();
+			// System.out.println("Server " + serverUrl + " may be down, client will remove"
+				//		+ "it withing 6 minutes if it does not show signs of life");
+
 		}
 			}
 		return pictureData;
@@ -282,7 +292,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 		final int[] serverIndexes = new Random().ints(0, servers.size()).distinct().limit(servers.size()).toArray();
 		boolean finished = false;
 		
-		while (!finished && i < servers.size()) {
+		while (!finished && i < serverIndexes.length && serverIndexes[i] < servers.size()) {
 			try {
 
 				System.out.println(servers.get(i) + " createAlbum\n");
@@ -311,7 +321,10 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 						}
 					}
 				}
-			} catch (Exception e) {
+			} catch(NullPointerException e) {
+				System.out.println("Concurrency error");
+			}catch (Exception e) {
+			
 				if (i >= servers.size()) {
 					if (times < 2) {
 						i = 0;
@@ -341,8 +354,11 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 				FileServerImplWS server = service.getFileServerImplWSPort();
 				try {
 					server.deleteAlbum(album.getName());
+					System.out.println("Deleted");
+					break;
 				} catch (Exception e) {
 					// call method again, max 3 times
+					System.out.println("rip?");
 					boolean executed = false;
 					for (int i = 0; !executed && i < 3; i++) { // number of
 																// tries
@@ -360,11 +376,15 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 							}
 						}
 					}
+					if(executed)
+						break;
 				}
 			}
 
 			catch (Exception e) {
-				System.out.println("Failed to delete album " + album.getName());
+				e.printStackTrace();
+				//System.out.println("Server " + serverUrl + " may be down, client will remove"
+					//	+ "it withing 6 minutes if it does not show signs of life");
 			}
 		}
 	}
@@ -380,11 +400,13 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 		final int[] serverIndexes = new Random().ints(0, servers.size()).distinct().limit(servers.size()).toArray();
 
 		boolean finished = false;
-		while (!finished && i < servers.size()) {
-
+		while (!finished && i < serverIndexes.length && serverIndexes[i] < servers.size()) {
+			// in case the server array is modified before finishing the operation
 			try {
 				System.out.println(servers.get(i) + " uploadPicture\n");
+				
 				URL wsURL = new URL(String.format("%s", servers.get(serverIndexes[i])));
+				
 				i++;
 
 				FileServerImplWSService service = new FileServerImplWSService(wsURL);
@@ -460,12 +482,15 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 							}
 						}
 					}
+					if(finished)
+						break;
 				}
 			}
 
 			catch (Exception e) {
-				// exception handled?
-				System.out.println("Failed to connect to server " + serverUrl);
+				e.printStackTrace();
+			//	System.out.println("Server " + serverUrl + " may be down, client will remove"
+				//		+ "it withing 6 minutes if it does not show signs of life");
 
 			}
 		}
