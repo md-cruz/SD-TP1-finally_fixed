@@ -95,13 +95,14 @@ public class FileServerImplWS {
 	
 	private void copyData(File deletedPicture, File del) {
 		try {
-		for(String fileName : deletedPicture.list()){
-			File f = new File(deletedPicture.getAbsolutePath(),fileName);
-			byte[] contents = Files.readAllBytes(f.toPath());
+		for(File fileName : deletedPicture.listFiles()){
 			
-			FileOutputStream fis = new FileOutputStream(new File(del.getAbsolutePath(),fileName));
+			byte[] contents = Files.readAllBytes(fileName.toPath());
+			
+			
+			FileOutputStream fis = new FileOutputStream(new File(del.getAbsolutePath(),fileName.getName()));
 			fis.write(contents);
-			f.delete();
+			fileName.delete();
 			fis.close();
 		}
 		}catch (Exception e){
@@ -122,11 +123,18 @@ public class FileServerImplWS {
 	// Possivelmente adicionar um parametro path?
 	public String[] getAlbumList () throws InfoNotFoundException {
 		File f = basePath;
-		if(f.exists() && f.isDirectory())
-			return f.list();
+		if(f.exists() && f.isDirectory()){
+			File[] albums = f.listFiles(); 
+			List<String> albumsAsStrings = new ArrayList<String>();
+			for(int i =0; i<albums.length;i++)
+				if(albums[i].isDirectory())
+					albumsAsStrings.add(albums[i].getName());
+			String[] albumsStringArray = new String[albumsAsStrings.size()];
+			albumsStringArray = albumsAsStrings.toArray(albumsStringArray);
+			return albumsStringArray;
+		}
 		else
 			throw new InfoNotFoundException("File not found :" );
-	
 	}
 
 
@@ -157,10 +165,7 @@ public class FileServerImplWS {
 		sOut.close();
 	}
 	
-	private List<String> generateMulticastAddresses(){
-		List<String> addresses = new ArrayList<String>();
-		return addresses;
-	}
+	
 	public static void main(String args[]) throws Exception {
 		String path = args.length > 0 ? args[0] : ".";
 		Endpoint.publish("http://0.0.0.0:8080/FileServer", new FileServerImplWS(path));

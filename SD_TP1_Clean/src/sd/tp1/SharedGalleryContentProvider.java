@@ -289,7 +289,9 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 	public Album createAlbum(String name) {
 		int i = 0;
 		int times = 0;
+		try{
 		final int[] serverIndexes = new Random().ints(0, servers.size()).distinct().limit(servers.size()).toArray();
+		
 		boolean finished = false;
 		
 		while (!finished && i < serverIndexes.length && serverIndexes[i] < servers.size()) {
@@ -334,9 +336,13 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 				}
 			}
 		}
+		
 		System.out.println(finished);
 		if (!finished)
 			return null;
+		}catch (IllegalArgumentException e){
+			System.out.println("No servers connected right now");
+		}
 		return new SharedAlbum(name);
 	}
 
