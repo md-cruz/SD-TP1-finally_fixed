@@ -187,13 +187,11 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			
 			Response reply = replyB.get();
 			
-			System.out.println( reply );
 			if (reply.getStatusInfo().equals(Status.OK)) {
 				albumNames = replyB.get(String[].class);
 
 				for (int i = 0; i < albumNames.length; i++) {
 					SharedAlbum alb = new SharedAlbum(albumNames[i]);
-					System.out.println(alb.getName() + " nome");
 					if (!lst.contains(alb) && !alb.getName().endsWith(".deleted"))
 						lst.add(alb);
 				}
@@ -293,13 +291,11 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			
 			Response reply = replyB.get();
 			
-			System.out.println( reply );
 			if (reply.getStatusInfo().equals(Status.OK)) {
 				pictureNames = replyB.get(String[].class);
 
 				for (int i = 0; i < pictureNames.length; i++) {
 					SharedPicture pic = new SharedPicture(pictureNames[i]);
-					System.out.println(pic.getName() + " nome");
 					if (!lst.contains(pic) && !pic.getName().endsWith(".deleted"))
 						lst.add(pic);
 				}
@@ -391,7 +387,6 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			Builder replyB = target.path("RESTServer/downloadPicture/" + album.getName() + "/" + picture.getName())
 					.request().accept(MediaType.APPLICATION_OCTET_STREAM);
 			Response reply = replyB.get();
-			System.out.println( reply );
 			if (reply.getStatusInfo().equals(Status.OK)) {
 				pictureData= replyB.get(byte[].class);
 				done = true;
@@ -491,7 +486,6 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			Response replyB = target.path("RESTServer/createNewAlbum/")
 					.request().post(Entity.entity(name, MediaType.APPLICATION_OCTET_STREAM));
 			
-			System.out.println( replyB );
 			if (replyB.getStatusInfo().equals(Status.OK)) {
 				done = true;
 			} 
@@ -566,7 +560,6 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			System.out.println(serverUrl);
 			Response replyB = target.path("RESTServer/deleteAlbum/" + album.getName())
 					.request().delete();
-			System.out.println(replyB);
 			if (replyB.getStatusInfo().equals(Status.OK)) {
 				done = true;
 			} 
@@ -649,7 +642,7 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 	private Picture restUploadPic(String serverUrl, Album album, String name, byte[] data) {
 		
 		boolean done = false;
-
+		String path = album.getName() + "/" + name;
 		for (int j = 0; j < 3 && !done; j++) {
 			WebTarget target = client.target(getBaseURI(serverUrl));
 			System.out.println("hi");
@@ -658,7 +651,7 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			+ album.getName() + "/" + name)
 					.request().post( Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
 			
-			System.out.println( replyB +" rep" );
+			
 			if (replyB.getStatusInfo().equals(Status.OK)) {
 				done = true;
 			
@@ -746,7 +739,6 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			Response replyB = target.path("RESTServer/deletePicture/" + album.getName()
 			+ "/" + picture.getName())
 					.request().delete();
-			System.out.println(replyB);
 			if (replyB.getStatusInfo().equals(Status.OK)) {
 				done = true;
 			} 

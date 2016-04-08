@@ -173,8 +173,8 @@ public class FileServerImplWS {
 		String path = args.length > 0 ? args[0] : ".";
 		String url = "http://"+InetAddress.getLocalHost().getHostAddress() +":8080/FileServer";
 		Endpoint.publish("http://0.0.0.0:8080/FileServer", new FileServerImplWS(path));
-		System.err.println("FileServer started");
-
+		System.err.println("FileServer started " + url);
+		
 		final String addr = "228.0.0.1";
 
 		final InetAddress address = InetAddress.getByName(addr);

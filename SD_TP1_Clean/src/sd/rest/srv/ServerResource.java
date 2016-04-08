@@ -32,7 +32,7 @@ public class ServerResource {
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response getPictureList(@PathParam("albumName") String albumName){
-		System.err.printf("getPictureList ( albumName: %s) ",albumName);
+		
 		File f = new File(basePath,albumName);
 		if(f.exists() && f.isDirectory())
 			return Response.ok(f.list()).build();
@@ -61,8 +61,10 @@ public class ServerResource {
 	
 	@DELETE
 	@Path("deleteAlbum/{albumName}")
-	public Response deleteAlbum(@PathParam("{albumName}") String albumName)  {
-		File deletedAlbum = new File(basePath,albumName);
+	public Response deleteAlbum(@PathParam("albumName")String albumName)  {
+		
+			File deletedAlbum = new File(basePath,albumName);
+		
 	
 		if(deletedAlbum.exists() && deletedAlbum.isDirectory()){
 			File del = new File(deletedAlbum.getAbsolutePath() + ".deleted");
@@ -76,6 +78,7 @@ public class ServerResource {
 			return Response.ok().build();
 		}
 		return Response.status(Status.NOT_FOUND).build();
+		
 	}
 	
 	private void copyData(File deletedPicture, File del) {
@@ -124,7 +127,6 @@ public class ServerResource {
 					albumsAsStrings.add(albums[i].getName());
 			String[] albumsStringArray = new String[albumsAsStrings.size()];
 			albumsStringArray = albumsAsStrings.toArray(albumsStringArray);
-			System.out.println("Trying to list albums");
 			return Response.ok(albumsStringArray).build();
 		}
 		else
@@ -147,10 +149,9 @@ public class ServerResource {
 	@POST
 	@Path("uploadPicture/{albumName}/{pictureName}")
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
-	public Response uploadPicture (@PathParam("{albumName}")String albumName,
-			@PathParam("{pictureName}")String pictureName,byte[] data)  {
+	public Response uploadPicture (@PathParam("albumName")String albumName,
+			@PathParam("pictureName")String pictureName,byte[] data)  {
 		FileOutputStream sOut;
-		System.out.println(albumName + " - " + pictureName);
 		try {
 		File f = new File(basePath,albumName+"/"+pictureName);
 		if(!f.exists()){
