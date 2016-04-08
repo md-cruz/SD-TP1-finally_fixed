@@ -102,7 +102,7 @@ public class ServerResource {
 	@Path("downloadPicture/{albumName}/{pictureName}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
 	public Response downloadPicture (@PathParam("albumName")String albumName,@PathParam("pictureName")String pictureName){
-		File pic = new File(basePath,albumName+"/" + pictureName);
+		File pic = new File(basePath,albumName+File.separator + pictureName);
 		if(pic.exists() && pic.isFile())
 			try {
 				return Response.ok(Files.readAllBytes(pic.toPath())).build();
@@ -118,6 +118,7 @@ public class ServerResource {
 	@Path("/getAlbumList/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAlbumList ()  {
+		try{
 		File f = basePath;
 		if(f.exists() && f.isDirectory()){
 			File[] albums = f.listFiles(); 
@@ -131,11 +132,15 @@ public class ServerResource {
 		}
 		else
 			return Response.status(Status.NOT_FOUND).build();
+		}catch(Exception e){
+			System.out.println("exceptiones");
+		}
+		return null;
 	}
 	@DELETE
 	@Path("deletePicture/{albumName}/{pictureName}")
 	public Response deletePicture(@PathParam("albumName")String albumName,@PathParam("pictureName")String pictureName) {
-		File deletedPicture = new File(basePath,albumName+"/" + pictureName);
+		File deletedPicture = new File(basePath,albumName+File.separator + pictureName);
 		if(deletedPicture.exists() && deletedPicture.isFile()){
 			File del = new File(deletedPicture.getAbsolutePath() + ".deleted");
 			if(del.exists() && del.isFile())
@@ -153,7 +158,7 @@ public class ServerResource {
 			@PathParam("pictureName")String pictureName,byte[] data)  {
 		FileOutputStream sOut;
 		try {
-		File f = new File(basePath,albumName+"/"+pictureName);
+		File f = new File(basePath,albumName+File.separator+pictureName);
 		if(!f.exists()){
 		sOut = new FileOutputStream(f);
 		sOut.write(data);

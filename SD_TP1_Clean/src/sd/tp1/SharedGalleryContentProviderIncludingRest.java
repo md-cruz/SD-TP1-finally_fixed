@@ -1,5 +1,6 @@
 package sd.tp1;
 
+import java.io.File;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -384,7 +385,7 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 		for (int j = 0; j < 3 && !done; j++) {
 			WebTarget target = client.target(getBaseURI(serverUrl));
 			System.out.println(serverUrl);
-			Builder replyB = target.path("RESTServer/downloadPicture/" + album.getName() + "/" + picture.getName())
+			Builder replyB = target.path("RESTServer/downloadPicture/" + album.getName() +"/"+ picture.getName())
 					.request().accept(MediaType.APPLICATION_OCTET_STREAM);
 			Response reply = replyB.get();
 			if (reply.getStatusInfo().equals(Status.OK)) {
@@ -642,16 +643,15 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 	private Picture restUploadPic(String serverUrl, Album album, String name, byte[] data) {
 		
 		boolean done = false;
-		String path = album.getName() + "/" + name;
+		String path = album.getName() +File.separator+ name;
 		for (int j = 0; j < 3 && !done; j++) {
 			WebTarget target = client.target(getBaseURI(serverUrl));
 			System.out.println("hi");
 			
 			Response replyB = target.path("RESTServer/uploadPicture/"
-			+ album.getName() + "/" + name)
+			+ album.getName() +"/"+ name)
 					.request().post( Entity.entity(data, MediaType.APPLICATION_OCTET_STREAM));
-			
-			
+		
 			if (replyB.getStatusInfo().equals(Status.OK)) {
 				done = true;
 			
@@ -674,7 +674,7 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 		FileServerImplWSService service = new FileServerImplWSService(wsURL);
 		FileServerImplWS server = service.getFileServerImplWSPort();
 		try {
-			server.uploadPicture(album.getName() + "/" + name, data);
+			server.uploadPicture(album.getName() +File.separator+ name, data);
 			finished = true;
 		}catch(PictureExistsException_Exception e){
 			return null;
@@ -683,7 +683,7 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			for (int j = 0; !finished && j < 3; j++) { // number of
 														// tries
 				try {
-					server.uploadPicture(album.getName() + "/" + name, data);
+					server.uploadPicture(album.getName() +File.separator+ name, data);
 					finished = true;
 				}catch(PictureExistsException_Exception e2){
 					return null;
@@ -737,7 +737,7 @@ public class SharedGalleryContentProviderIncludingRest implements GalleryContent
 			WebTarget target = client.target(getBaseURI(serverUrl));
 			System.out.println(serverUrl);
 			Response replyB = target.path("RESTServer/deletePicture/" + album.getName()
-			+ "/" + picture.getName())
+			+"/"+ picture.getName())
 					.request().delete();
 			if (replyB.getStatusInfo().equals(Status.OK)) {
 				done = true;

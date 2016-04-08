@@ -46,7 +46,7 @@ public class RestServer {
 
 	private static void answerMulticast(String localhost) {
 
-		new Thread(() -> {
+		
 			try {
 				final String addr = "228.0.0.1";
 				System.out.println("new thread launched");
@@ -74,6 +74,6 @@ public class RestServer {
 				e.printStackTrace();
 
 			}
-		}).start();
+		
 	}
 }

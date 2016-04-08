@@ -82,7 +82,7 @@ public class FileServerImplWS {
 	
 	@WebMethod
 	public void deletePicture(String albumName, String pictureName) throws InfoNotFoundException {
-		File deletedPicture = new File(basePath,albumName+"/" + pictureName);
+		File deletedPicture = new File(basePath,albumName+File.separator+ pictureName);
 		if(deletedPicture.exists() && deletedPicture.isFile()){
 			File del = new File(deletedPicture.getAbsolutePath() + ".deleted");
 			if(del.exists() && del.isFile())
@@ -111,7 +111,7 @@ public class FileServerImplWS {
 
 	@WebMethod
 	public byte[] downloadPicture (String albumName,String pictureName) throws InfoNotFoundException, IOException {
-		File pic = new File(basePath,albumName+"/" + pictureName);
+		File pic = new File(basePath,albumName+File.separator + pictureName);
 		if(pic.exists() && pic.isFile())
 			return Files.readAllBytes(pic.toPath()); 
 		else
