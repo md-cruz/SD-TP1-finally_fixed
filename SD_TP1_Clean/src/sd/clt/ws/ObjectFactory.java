@@ -37,6 +37,7 @@ public class ObjectFactory {
     private final static QName _GetFileInfoResponse_QNAME = new QName("http://srv.sd/", "getFileInfoResponse");
     private final static QName _DeleteAlbumResponse_QNAME = new QName("http://srv.sd/", "deleteAlbumResponse");
     private final static QName _CreateNewAlbum_QNAME = new QName("http://srv.sd/", "createNewAlbum");
+    private final static QName _PictureExistsException_QNAME = new QName("http://srv.sd/", "PictureExistsException");
     private final static QName _AliveResponse_QNAME = new QName("http://srv.sd/", "aliveResponse");
     private final static QName _GetPictureList_QNAME = new QName("http://srv.sd/", "getPictureList");
     private final static QName _GetAlbumList_QNAME = new QName("http://srv.sd/", "getAlbumList");
@@ -62,6 +63,14 @@ public class ObjectFactory {
      */
     public CreateNewAlbum createCreateNewAlbum() {
         return new CreateNewAlbum();
+    }
+
+    /**
+     * Create an instance of {@link PictureExistsException }
+     * 
+     */
+    public PictureExistsException createPictureExistsException() {
+        return new PictureExistsException();
     }
 
     /**
@@ -358,6 +367,15 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link JAXBElement }{@code <}{@link PictureExistsException }{@code >}}
+     * 
+     */
+    @XmlElementDecl(namespace = "http://srv.sd/", name = "PictureExistsException")
+    public JAXBElement<PictureExistsException> createPictureExistsException(PictureExistsException value) {
+        return new JAXBElement<PictureExistsException>(_PictureExistsException_QNAME, PictureExistsException.class, null, value);
+    }
+
+    /**
      * Create an instance of {@link JAXBElement }{@code <}{@link AliveResponse }{@code >}}
      * 
      */
@@ -451,18 +469,18 @@ public class ObjectFactory {
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "return", scope = GetFileResponse.class)
-    public JAXBElement<byte[]> createGetFileResponseReturn(byte[] value) {
-        return new JAXBElement<byte[]>(_DownloadPictureResponseReturn_QNAME, byte[].class, GetFileResponse.class, ((byte[]) value));
+    @XmlElementDecl(namespace = "", name = "arg1", scope = UploadPicture.class)
+    public JAXBElement<byte[]> createUploadPictureArg1(byte[] value) {
+        return new JAXBElement<byte[]>(_UploadPictureArg1_QNAME, byte[].class, UploadPicture.class, ((byte[]) value));
     }
 
     /**
      * Create an instance of {@link JAXBElement }{@code <}{@link byte[]}{@code >}}
      * 
      */
-    @XmlElementDecl(namespace = "", name = "arg1", scope = UploadPicture.class)
-    public JAXBElement<byte[]> createUploadPictureArg1(byte[] value) {
-        return new JAXBElement<byte[]>(_UploadPictureArg1_QNAME, byte[].class, UploadPicture.class, ((byte[]) value));
+    @XmlElementDecl(namespace = "", name = "return", scope = GetFileResponse.class)
+    public JAXBElement<byte[]> createGetFileResponseReturn(byte[] value) {
+        return new JAXBElement<byte[]>(_DownloadPictureResponseReturn_QNAME, byte[].class, GetFileResponse.class, ((byte[]) value));
     }
 
 }

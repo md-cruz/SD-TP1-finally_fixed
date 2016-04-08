@@ -26,6 +26,7 @@ public class ServerResource {
 	
 	static File basePath;
 	
+	//works
 	@GET
 	@Path("getPictureList/{albumName}")
 	@Produces(MediaType.APPLICATION_JSON)
@@ -43,8 +44,7 @@ public class ServerResource {
 	
 	@POST
 	@Path("createNewAlbum")
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	@Consumes(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
 	public Response createNewAlbum(String albumName){
 		File newAlbum = new File(basePath,albumName);
 		boolean result = false;
@@ -61,10 +61,9 @@ public class ServerResource {
 	
 	@DELETE
 	@Path("deleteAlbum/{albumName}")
-	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deleteAlbum(@PathParam("{albumName}") String albumName)  {
 		File deletedAlbum = new File(basePath,albumName);
-		
+	
 		if(deletedAlbum.exists() && deletedAlbum.isDirectory()){
 			File del = new File(deletedAlbum.getAbsolutePath() + ".deleted");
 			if(del.exists() && del.isDirectory()){
@@ -73,6 +72,7 @@ public class ServerResource {
 				
 			}else
 				deletedAlbum.renameTo(del);
+			
 			return Response.ok().build();
 		}
 		return Response.status(Status.NOT_FOUND).build();
@@ -98,7 +98,6 @@ public class ServerResource {
 	@GET
 	@Path("downloadPicture/{albumName}/{pictureName}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	@Consumes(MediaType.APPLICATION_JSON)
 	public Response downloadPicture (@PathParam("albumName")String albumName,@PathParam("pictureName")String pictureName){
 		File pic = new File(basePath,albumName+"/" + pictureName);
 		if(pic.exists() && pic.isFile())
@@ -113,7 +112,7 @@ public class ServerResource {
 	
 	
 	@GET
-	@Path("getAlbumList")
+	@Path("/getAlbumList/")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response getAlbumList ()  {
 		File f = basePath;
@@ -125,6 +124,7 @@ public class ServerResource {
 					albumsAsStrings.add(albums[i].getName());
 			String[] albumsStringArray = new String[albumsAsStrings.size()];
 			albumsStringArray = albumsAsStrings.toArray(albumsStringArray);
+			System.out.println("Trying to list albums");
 			return Response.ok(albumsStringArray).build();
 		}
 		else
@@ -132,7 +132,6 @@ public class ServerResource {
 	}
 	@DELETE
 	@Path("deletePicture/{albumName}/{pictureName}")
-	@Consumes(MediaType.APPLICATION_JSON)
 	public Response deletePicture(@PathParam("albumName")String albumName,@PathParam("pictureName")String pictureName) {
 		File deletedPicture = new File(basePath,albumName+"/" + pictureName);
 		if(deletedPicture.exists() && deletedPicture.isFile()){
@@ -145,18 +144,25 @@ public class ServerResource {
 		return Response.status(Status.NOT_FOUND).build();
 	}
 	
-	@PUT
-	@Path("uploadPicture/{path}")
+	@POST
+	@Path("uploadPicture/{albumName}/{pictureName}")
 	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
-	public Response uploadPicture (@PathParam("{path}")String path, byte[] data)  {
+	public Response uploadPicture (@PathParam("{albumName}")String albumName,
+			@PathParam("{pictureName}")String pictureName,byte[] data)  {
 		FileOutputStream sOut;
+		System.out.println(albumName + " - " + pictureName);
 		try {
-		sOut = new FileOutputStream(new File(basePath,path));
+		File f = new File(basePath,albumName+"/"+pictureName);
+		if(!f.exists()){
+		sOut = new FileOutputStream(f);
 		sOut.write(data);
 		sOut.close();
-		return Response.ok().build();
+		
+		return Response.ok().build();}
+		return Response.status(Status.BAD_REQUEST).build();
 		} catch (Exception e) {
 			System.err.println("Error writing file.");
+			e.printStackTrace();
 			return Response.status(Status.EXPECTATION_FAILED).build();
 		}
 	}

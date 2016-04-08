@@ -19,7 +19,6 @@ import javax.xml.ws.Endpoint;
 @WebService
 public class FileServerImplWS {
 	private static final String WSERVICE = "GiveMeYourIps";
-	private static final String LOCALHOST = "http://localhost:8080/FileServer";
 	private File basePath;
 
 	public FileServerImplWS() {
@@ -159,15 +158,20 @@ public class FileServerImplWS {
 	}
 	
 	@WebMethod
-	public void uploadPicture (String path, byte[] data) throws InfoNotFoundException,IOException {
-		FileOutputStream sOut = new FileOutputStream(new File(basePath,path));
-		sOut.write(data);
-		sOut.close();
+	public void uploadPicture (String path, byte[] data) throws InfoNotFoundException,IOException, PictureExistsException {
+		File f = new File(basePath, path);
+		if (!f.exists()) {
+			FileOutputStream sOut = new FileOutputStream(f);
+			sOut.write(data);
+			sOut.close();
+		} else
+			throw new PictureExistsException("No picture");
 	}
 	
 	
 	public static void main(String args[]) throws Exception {
 		String path = args.length > 0 ? args[0] : ".";
+		String url = "http://"+InetAddress.getLocalHost().getHostAddress() +":8080/FileServer";
 		Endpoint.publish("http://0.0.0.0:8080/FileServer", new FileServerImplWS(path));
 		System.err.println("FileServer started");
 
@@ -185,7 +189,7 @@ public class FileServerImplWS {
 			
 			if (s.equalsIgnoreCase(WSERVICE)){
 				
-				byte[] data = LOCALHOST.getBytes();
+				byte[] data = ("S"+url).getBytes();
 				DatagramPacket sendingPacket = new DatagramPacket(data,data.length);
 				sendingPacket.setAddress(packet.getAddress());
 				sendingPacket.setPort(packet.getPort());

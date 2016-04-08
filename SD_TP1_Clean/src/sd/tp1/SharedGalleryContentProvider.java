@@ -31,7 +31,7 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 
 	Gui gui;
 	List<String> servers;
-	private static final String MULTICASTIP = "";
+	private static final String MULTICASTIP = "228.0.0.1";
 	private static final int PORT = 9000;
 	
 
@@ -323,8 +323,6 @@ public class SharedGalleryContentProvider implements GalleryContentProvider {
 						}
 					}
 				}
-			} catch(NullPointerException e) {
-				System.out.println("Concurrency error");
 			}catch (Exception e) {
 			
 				if (i >= servers.size()) {
